@@ -4,11 +4,14 @@ using System.Threading;
 
 namespace Playtika.Controllers
 {
-    public abstract class RootController : ControllerBase
+    public abstract partial class RootController : ControllerBase
     {
-        protected RootController(IControllerFactory controllerFactory) : base(controllerFactory)
+        protected RootController(IControllerFactory controllerFactory)
+            : base(controllerFactory)
         {
         }
+
+        partial void ProfileOnStart();
 
         /// <summary>
         /// Launches the execution of the controller tree.
@@ -31,6 +34,7 @@ namespace Playtika.Controllers
         protected override void OnStart()
         {
             SetRootController(this);
+            ProfileOnStart();
         }
 
         protected override void OnStop()

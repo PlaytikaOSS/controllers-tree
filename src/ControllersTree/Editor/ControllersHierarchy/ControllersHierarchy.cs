@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,11 +12,34 @@ namespace Playtika.Controllers.Editor
 {
     public class ControllersHierarchy : EditorWindow
     {
-        [MenuItem("Tools/Controllers Hierarchy", false, 102)]
+        [MenuItem("Tools/Controllers/Controllers Hierarchy", false, 102)]
         private static void ShowWindow()
         {
             GetWindow<ControllersHierarchy>("Controllers Hierarchy");
         }
+        
+        private const string UnityControllerProfilerDefine = "UNITY_CONTROLLERS_PROFILER";
+#if UNITY_CONTROLLERS_PROFILER
+        [MenuItem("Tools/Controllers/Disable UNITY_CONTROLLERS_PROFILER define", priority = 103)]
+        public static void DisableUnityControllerProfilerDefine()
+        {
+            var buildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+            var definesList = defines.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            definesList.Remove(UnityControllerProfilerDefine);
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, definesList.ToArray());
+        }
+#else
+        [MenuItem("Tools/Controllers/Enable UNITY_CONTROLLERS_PROFILER define", priority = 103)]
+        public static void EnableUnityControllerProfilerDefine()
+        {
+            var buildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+            var definesList = defines.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            definesList.Add(UnityControllerProfilerDefine);
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, definesList.ToArray());
+        }
+#endif
 
         private ControllersTreeViewModel _model;
         private ControllersTabBarDrawer _tabBarDrawer;
