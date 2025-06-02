@@ -20,6 +20,10 @@ namespace Playtika.Controllers
 
         CancellationToken IController.CancellationToken => _lifetimeToken;
 
+        partial void ProfileOnCreated();
+        partial void ProfileOnStart();
+        partial void ProfileOnStop();
+
         protected ControllerBase(IControllerFactory controllerFactory)
         {
             _controllerFactory = controllerFactory;
@@ -58,6 +62,7 @@ namespace Playtika.Controllers
                     _lifetimeToken = _lifetimeTokenSource.Token;
                     _lifetimeToken.ThrowIfCancellationRequested();
                     _state = ControllerState.Initialized;
+                    ProfileOnCreated();
                     break;
                 }
                 default:
@@ -72,8 +77,8 @@ namespace Playtika.Controllers
                 case ControllerState.Initialized:
                 {
                     _state = ControllerState.Running;
-
                     OnStart();
+                    ProfileOnStart();
                     break;
                 }
                 default:
@@ -101,6 +106,7 @@ namespace Playtika.Controllers
                 case ControllerState.Initialized:
                 case ControllerState.Running:
                     StopChildrenAndSelf();
+                    ProfileOnStop();
                     break;
                 case ControllerState.Stopped:
                 case ControllerState.Disposed:
