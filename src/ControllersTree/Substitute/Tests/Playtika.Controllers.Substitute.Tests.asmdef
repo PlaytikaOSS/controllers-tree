@@ -5,7 +5,9 @@
         "Playtika.Controllers.Substitute",
         "UniTask"
     ],
-    "optionalUnityReferences": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [
         "Editor"
     ],

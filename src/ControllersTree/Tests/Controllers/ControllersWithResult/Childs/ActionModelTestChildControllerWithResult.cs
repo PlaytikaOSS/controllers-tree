@@ -30,7 +30,7 @@ namespace UnitTests.Controllers
 
         protected override async UniTask OnFlowAsync(CancellationToken cancellationToken)
         {
-            base.OnFlowAsync(cancellationToken);
+            await base.OnFlowAsync(cancellationToken);
             await Task.Delay(50, cancellationToken).ConfigureAwait(false);
 
             TestChildControllersActionModel.TriggerChildFlow(TestControllerGuid);
