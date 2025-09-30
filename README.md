@@ -42,7 +42,7 @@ Unity's default approach to game development relies on component-oriented progra
 
 In this approach, an OOP class (inheriting from MonoBehaviour) consists of a set of data and methods to modify and display it. Encapsulation requires that this data be hidden from outside access and changed only through the provided methods. As a result, classes often become quite large, even when broken down into individual components. While inheritance can address some of these issues, it may complicate readability. Additionally, interactions between components are managed through events or specific classes. Coordinating these components isn’t straightforward; managing synchronization can lead to callback complexities, making it harder to understand over time.![](docs/Images~/MvcMvp.svg)
 
-The **MVC/MVP** approach changes this principle. Data is put into **model or models** (a model is a class for storing data). Usually, a model has two interfaces: one for reading only and the other for changing data. This is done to easily separate who reads data from who changes it. In some projects, models contain APIs and methods to change data, while sometimes they contain only data.
+The **MVC/MVP** approach changes this principle. Data is put into **model or models** (a model is a class for storing data). Usually, a model has two interfaces: one for reading only and the other for changing data. This is done to easily separate who reads data from who changes it. In some projects, models contain APIs and methods to change data **(Rich Model)**, while sometimes they contain only data **(Anemic Model)**.
 
 Next is the **view** – in Unity, it's a MonoBehaviour, with objects for display/input. There is no logic in them, just output and input data.
 
