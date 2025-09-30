@@ -505,3 +505,6 @@ substituteControllerFactory.SetBehaviourFor<FeatureController2b>(ControllerBehav
 8 - Lifetime контроллера на выбранный фрейм (то же самое что и 4).
 
 9 - Фильтр чтобы быстро найти контроллер по подстроке в имени или в скоупе.
+
+### Дополнительные материалы о Controllers Tree:
+Доклад Алексея Мерзликина на Digital Dragons (Eng) : https://www.youtube.com/watch?v=-TlQAm8IZp4
