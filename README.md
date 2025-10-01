@@ -28,7 +28,7 @@ Install via UPM and the Git URL:
 Navigate to your project Packages folder and modify the manifest.json file.
 Add this line below the "dependencies": { line
 ```json
-"com.playtika.controllers-tree": "https://github.com/PlaytikaOSS/controllers-tree.git?path=src/ControllersTree#v1.1.0",
+"com.playtika.controllers-tree": "https://github.com/PlaytikaOSS/controllers-tree.git?path=src/ControllersTree#v1.2.0",
 ```
 Reload the project and UPM will install the package.
 
