@@ -42,7 +42,7 @@ Unity's default approach to game development relies on component-oriented progra
 
 In this approach, an OOP class (inheriting from MonoBehaviour) consists of a set of data and methods to modify and display it. Encapsulation requires that this data be hidden from outside access and changed only through the provided methods. As a result, classes often become quite large, even when broken down into individual components. While inheritance can address some of these issues, it may complicate readability. Additionally, interactions between components are managed through events or specific classes. Coordinating these components isn’t straightforward; managing synchronization can lead to callback complexities, making it harder to understand over time.![](docs/Images~/MvcMvp.svg)
 
-The **MVC/MVP** approach changes this principle. Data is put into **model or models** (a model is a class for storing data). Usually, a model has two interfaces: one for reading only and the other for changing data. This is done to easily separate who reads data from who changes it. In some projects, models contain APIs and methods to change data, while sometimes they contain only data.
+The **MVC/MVP** approach changes this principle. Data is put into **model or models** (a model is a class for storing data). Usually, a model has two interfaces: one for reading only and the other for changing data. This is done to easily separate who reads data from who changes it. In some projects, models contain APIs and methods to change data **(Rich Model)**, while sometimes they contain only data **(Anemic Model)**.
 
 Next is the **view** – in Unity, it's a MonoBehaviour, with objects for display/input. There is no logic in them, just output and input data.
 
@@ -454,3 +454,88 @@ public enum ControllerBehaviour
 
 substituteControllerFactory.SetBehaviourFor<FeatureController2b>(ControllerBehaviour.CompleteOnFlowAsync);
 ```
+
+### Controllers Hierarchy Utility:
+
+For convenient viewing of the controller tree, there is the Controllers Hierarchy utility.
+
+![](images/Menu.png)
+
+You can open it via the menu: Tools → Controllers → Controllers Hierarchy.
+
+The following window will appear:
+![](images/ControllerHierarchy1.png)
+
+This window displays the controller tree, starting from the root controller.
+
+**Section descriptions:**
+
+1 **Name** – the controller’s name and its short description.
+
+2 **State** – the controller’s current state.
+
+3 **Scope** – the scope from which the controller was created.
+
+4 **Type** – the controller type (ControllerBase, ControllerWithResultBase, as well as custom types you can configure).
+
+Additional features:
+
+5 **Edit** – (appears when a controller is selected) opens the file with the selected controller for editing.
+
+6 **Pin** – creates an additional tab starting from the selected controller.
+    ![](images/ControllerHierarchy2.png)
+
+7 **Infos** – opens an extra section to view the controller’s fields and their values.
+    ![](images/ControllerHierarchy3.png)
+
+8 **Methods** – opens a section with the controller’s methods. Methods without arguments can be invoked directly. Methods marked with the [DebugMethod] attribute are displayed at the top of the list — useful during development for triggering various actions, such as cheat codes.
+    ![](images/ControllerHierarchy4.png)
+
+**If necessary, you can implement the IControllerDebugInfo interface in any controller** — it allows customizing how the controller is displayed in the utility. The IControllerDebugInfo interface is only used in the Unity Editor.
+
+
+### Controllers Profiler:
+
+![](images/Menu.png)
+
+When the CONTROLLERS_PROFILER define is enabled, a new Controllers section appears in the Unity Profiler.
+In the profiler, you can see which controllers were started and completed in each frame.
+
+![](images/ControllersProfiler.mov)
+
+The data is collected at the end of every frame, and three graphs are displayed:
+
+![](images/ControllersProfiler1.png)
+
+Active Controllers graph – the number of controllers currently in the tree.
+
+Total Controllers graph – the total number of controllers over the entire runtime of the application.
+
+Controllers Started graph – the number of controllers that started in the selected frame.
+
+![](images/ControllersProfiler2.png)
+
+On the left side, you’ll see summary information about controllers that started or finished in the selected frame:
+
+1 Controllers that started in the selected frame.
+
+2 Execution time of OnStart (in ms). If this number is greater than 0, it’s worth checking – it means OnStart contains a long synchronous method.
+
+3 Controllers that completed in the selected frame.
+
+4 Controller lifetime (in ms).
+
+On the right side, you can see a dump of the controller tree relevant to the current frame. If a controller was started and immediately completed, it will not be shown in this tree.
+
+5 The controller’s name in the tree.
+
+6 The scope from which the controller was spawned.
+
+7 The controller’s OnStart (same as point 2).
+
+8 Controller lifetime at the selected frame (same as point 4).
+
+9 A filter to quickly find a controller by substring in its name or scope.
+
+### Video about Controllers Tree:
+Alexey Merzlikin on Digital Dragons - Architecture Behind Our Most Popular Unity Games : https://www.youtube.com/watch?v=-TlQAm8IZp4
