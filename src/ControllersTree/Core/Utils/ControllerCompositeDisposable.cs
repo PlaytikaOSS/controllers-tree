@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.Pool;
 
 namespace Playtika.Controllers
@@ -89,7 +90,7 @@ namespace Playtika.Controllers
             {
                 case 0: return;
                 case 1: throw exceptionList[0];
-                default: throw new AggregateException(exceptionList);
+                default: throw new AggregateException(exceptionList.ToList());
             }
         }
     }
