@@ -22,7 +22,7 @@ namespace Playtika.Controllers
             {
                 disposable?.Dispose();
             }
-            else
+            else if (disposable != null)
             {
                 _disposables.Add(disposable);
             }
@@ -38,6 +38,7 @@ namespace Playtika.Controllers
             {
                 return;
             }
+
             if (_disposed)
             {
                 using var pooledObject = ListPool<IDisposable>.Get(out var disposablesList);
