@@ -43,7 +43,7 @@ namespace Playtika.Controllers
             if (_disposed)
             {
                 using var pooledObject = ListPool<IDisposable>.Get(out var disposablesList);
-                disposablesList.AddRange(collection);
+                disposablesList.AddRange(collection.Where(c => c != null));
                 DisposeMany(disposablesList);
             }
             else
