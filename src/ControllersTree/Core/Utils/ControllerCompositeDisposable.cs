@@ -11,6 +11,7 @@ namespace Playtika.Controllers
     public class ControllerCompositeDisposable : IDisposable
     {
         private readonly List<IDisposable> _disposables = ListPool<IDisposable>.Get();
+        private bool _disposed = false;
 
         /// <summary>
         /// Adds a disposable object to the internal list of disposables.
@@ -18,7 +19,14 @@ namespace Playtika.Controllers
         /// <param name="disposable">The disposable object to add to the list.</param>
         public void Add(IDisposable disposable)
         {
-            _disposables.Add(disposable);
+            if (_disposed)
+            {
+                disposable?.Dispose();
+            }
+            else if (disposable != null)
+            {
+                _disposables.Add(disposable);
+            }
         }
 
         /// <summary>
@@ -27,18 +35,50 @@ namespace Playtika.Controllers
         /// <param name="collection">The collection of disposable objects to add to the list.</param>
         public void AddRange(IEnumerable<IDisposable> collection)
         {
-            _disposables.AddRange(collection);
+            if (collection == null)
+            {
+                return;
+            }
+
+            if (_disposed)
+            {
+                using var pooledObject = ListPool<IDisposable>.Get(out var disposablesList);
+                disposablesList.AddRange(collection.Where(c => c != null));
+                DisposeMany(disposablesList);
+            }
+            else
+            {
+                _disposables.AddRange(collection);
+            }
         }
 
         public void Dispose()
         {
-            using var pooledObject = ListPool<Exception>.Get(out var exceptionList);
+            if (_disposed)
+            {
+                return;
+            }
 
-            foreach (var disposable in _disposables)
+            _disposed = true;
+
+            try
+            {
+                DisposeMany(_disposables);
+            }
+            finally
+            {
+                ListPool<IDisposable>.Release(_disposables);
+            }
+        }
+
+        private static void DisposeMany(IEnumerable<IDisposable> disposables)
+        {
+            using var pooledObject = ListPool<Exception>.Get(out var exceptionList);
+            foreach (var disposable in disposables)
             {
                 try
                 {
-                    disposable.Dispose();
+                    disposable?.Dispose();
                 }
                 catch (Exception e)
                 {
@@ -46,13 +86,11 @@ namespace Playtika.Controllers
                 }
             }
 
-            _disposables.Clear();
-
-            ListPool<IDisposable>.Release(_disposables);
-
-            if (exceptionList.Any())
+            switch (exceptionList.Count)
             {
-                throw new AggregateException(exceptionList);
+                case 0: return;
+                case 1: throw exceptionList[0];
+                default: throw new AggregateException(exceptionList.ToList());
             }
         }
     }

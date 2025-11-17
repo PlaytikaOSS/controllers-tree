@@ -215,7 +215,7 @@ namespace UnitTests.Controllers
                         .LaunchAsync<ActionModelTestControllerWithResult_CompleteOnStart, TestControllerArgs, TestEmptyControllerResult>(
                             args, _controllerFactory, CancellationToken);
             }
-            catch (AggregateException)
+            catch (TestControllersException)
             {
                 exceptionThrown = true;
             }
