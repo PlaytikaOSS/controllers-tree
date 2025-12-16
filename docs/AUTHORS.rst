@@ -6,6 +6,7 @@ We thank the following people for their contributions (in alphabetical order):
 - Aleksei Borisov
 - Aleksey Lukoyanichev
 - Alex Kniazkin
+- Alexey Goncharov
 - Alexey Merzlikin
 - Aliaksandr Hurynovich
 - Aliaksandr Krauchuk
@@ -28,6 +29,7 @@ We thank the following people for their contributions (in alphabetical order):
 - Grigory Perepechko
 - Igor Perepechenko
 - Ivan Kovalchuk
+- Ivan Murashka
 - Ivan Voinyi
 - Ivan Zhdanov
 - Leonid Hromyko
