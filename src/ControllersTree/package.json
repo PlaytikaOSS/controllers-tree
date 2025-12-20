@@ -5,5 +5,8 @@
     "unity": "2021.3",
     "description": "Framework for organizing game logic into scalable, maintainable hierarchies of controllers.",
     "keywords": ["Unity", "HMVC", "controllers-tree", "Hierarchy of controllers", "Unity controllers"],
-    "documentationUrl": "https://github.com/PlaytikaOSS/controllers-tree/blob/main/README.md"
+    "documentationUrl": "https://github.com/PlaytikaOSS/controllers-tree/blob/main/README.md",
+    "dependencies": {
+        "com.unity.profiling.core": "1.0.0"
+    }
 }

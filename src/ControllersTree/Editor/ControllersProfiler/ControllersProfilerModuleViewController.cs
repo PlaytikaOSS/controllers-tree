@@ -138,7 +138,9 @@ namespace Modules.Controller.Editor
             }
 
             _liveControllersListView.itemsSource = _filteredLiveControllersList;
-            _liveControllersListView.Rebuild();
+            _liveControllersListView.schedule.Execute(() => {
+                _liveControllersListView.Rebuild();
+            });
         }
 
         private string GetControllerName(int hash, RawFrameDataView frameData)
@@ -201,7 +203,9 @@ namespace Modules.Controller.Editor
             GetCreatedControllers(frameData, _createdAndDestroyedControllersList);
             GetStoppedControllers(frameData, _createdAndDestroyedControllersList);
             _createdAndDestroyedControllersListView.itemsSource = _createdAndDestroyedControllersList;
-            _createdAndDestroyedControllersListView.Rebuild();
+            _createdAndDestroyedControllersListView.schedule.Execute(() => {
+                _createdAndDestroyedControllersListView.Rebuild();
+            });
 
             _liveControllersList.Clear();
             GetLiveControllers(frameData, _liveControllersList);
