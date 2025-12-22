@@ -1,8 +1,11 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Playtika.Controllers;
 using NUnit.Framework;
 using Playtika.Controllers.Substitute;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace UnitTests.Controllers
 {
@@ -146,6 +149,8 @@ namespace UnitTests.Controllers
             _testControllersActionModel.StopTriggered += () => stopTriggered = true;
             _testControllersActionModel.DisposeTriggered += () => throw new TestControllersException(TestControllersMethodsNamesConsts.DisposeMethodName);
 
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+            
             Assert.Throws<AggregateException>(
                 () =>
                 {

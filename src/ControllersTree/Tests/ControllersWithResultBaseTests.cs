@@ -1,9 +1,12 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Playtika.Controllers;
 using NUnit.Framework;
 using Playtika.Controllers.Substitute;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace UnitTests.Controllers
 {
@@ -207,6 +210,7 @@ namespace UnitTests.Controllers
             _testControllersActionModel.StopTriggered += () => stopTriggered = true;
             _testControllersActionModel.DisposeTriggered += () => throw new TestControllersException(TestControllersMethodsNamesConsts.DisposeMethodName);
             var exceptionThrown = false;
+            LogAssert.Expect(LogType.Exception, new Regex(nameof(TestControllersException)));
 
             // Act
             try
@@ -215,7 +219,7 @@ namespace UnitTests.Controllers
                         .LaunchAsync<ActionModelTestControllerWithResult_CompleteOnStart, TestControllerArgs, TestEmptyControllerResult>(
                             args, _controllerFactory, CancellationToken);
             }
-            catch (TestControllersException)
+            catch (AggregateException)
             {
                 exceptionThrown = true;
             }
