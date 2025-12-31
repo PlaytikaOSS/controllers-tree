@@ -1,0 +1,27 @@
+{
+  "name": "com.playtika.controllers-tree-samples",
+  "displayName": "ControllersTreeSamples",
+  "version": "1.0.0",
+  "unity": "2018.3",
+  "description": "Samples for controllers tree package",
+  "keywords": [
+    "Unity",
+    "HMVC",
+    "controllers-tree",
+    "Hierarchy of controllers",
+    "Unity controllers"
+  ],
+  "documentationUrl": "https://github.com/Playtika/unity-controllers-tree/blob/develop/README.md",
+  "samples": [
+    {
+      "displayName": "Fruits Merge Sample",
+      "description": "Contains sample for small merge game to show how to use controllers tree",
+      "path": "Samples~/FruitsMerge"
+    }
+  ],
+  "dependencies": {
+    "com.cysharp.unitask": "1.0.0",
+    "jp.hadashikick.vcontainer": "1.0.0",
+    "com.playtika.controllers-tree": "1.0.0"
+  }
+}
