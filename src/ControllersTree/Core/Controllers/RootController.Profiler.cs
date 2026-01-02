@@ -38,7 +38,7 @@ namespace Playtika.Controllers
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+                await UniTask.Yield(PlayerLoopTiming.LastUpdate, cancellationToken);
                 PushToProfilerStream();
             }
         }
