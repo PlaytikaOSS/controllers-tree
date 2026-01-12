@@ -80,8 +80,13 @@ namespace Playtika.Controllers
             }
         }
 
-        private static void DisposeMany(IEnumerable<IDisposable> disposables)
+        private static void DisposeMany(IReadOnlyCollection<IDisposable> disposables)
         {
+            if (disposables == null || disposables.Count == 0)
+            {
+                return;
+            }
+
             using var pooledObject = ListPool<Exception>.Get(out var exceptionList);
             foreach (var disposable in disposables)
             {
