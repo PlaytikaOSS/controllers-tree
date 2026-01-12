@@ -9,12 +9,12 @@ namespace Playtika.Controllers
     public abstract partial class ControllerBase : IController, IDisposable
     {
         private readonly List<IController> _childControllers;
-        private readonly ControllerCompositeDisposable _compositeDisposables = new ();
         private readonly IControllerFactory _controllerFactory;
         private string _name;
         private CancellationToken _lifetimeToken;
         private CancellationTokenSource _lifetimeTokenSource;
         private ControllerState _state;
+        private ControllerCompositeDisposable _disposables;
 
         public string Name
         {
@@ -45,12 +45,14 @@ namespace Playtika.Controllers
 
         public void AddDisposable(IDisposable disposable)
         {
-            _compositeDisposables.Add(disposable);
+            _disposables ??= new ControllerCompositeDisposable();
+            _disposables.Add(disposable);
         }
 
         public void AddDisposables(IEnumerable<IDisposable> collection)
         {
-            _compositeDisposables.AddRange(collection);
+            _disposables ??= new ControllerCompositeDisposable();
+            _disposables.AddRange(collection);
         }
 
         protected virtual void OnStart()
@@ -149,7 +151,7 @@ namespace Playtika.Controllers
                 case ControllerState.Stopped:
                 {
                     _lifetimeTokenSource?.Cancel();
-                    _compositeDisposables.Dispose();
+                    _disposables?.Dispose();
                     ListPool<IController>.Release(_childControllers);
                     _state = ControllerState.Disposed;
                     break;

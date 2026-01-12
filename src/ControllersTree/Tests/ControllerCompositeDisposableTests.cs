@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Playtika.Controllers;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace UnitTests.Controllers
 {
@@ -160,28 +163,6 @@ namespace UnitTests.Controllers
         }
 
         [Test]
-        public void ControllerCompositeDisposable_OneDisposableThrows_ThrowsSingleExceptionAndDisposesOthers()
-        {
-            // Arrange
-            var composite = new ControllerCompositeDisposable();
-            var throwingDisposable = new TestDisposable { ThrowOnDispose = true };
-            var normalDisposable = new TestDisposable();
-
-            composite.Add(throwingDisposable);
-            composite.Add(normalDisposable);
-
-            // Act
-            var exception = Assert.Throws<TestControllersException>(
-                () => composite.Dispose(),
-                "Expected TestControllersException from throwing disposable");
-
-            // Assert
-            Assert.IsNotNull(exception, "Exception should not be null");
-            Assert.AreEqual(1, throwingDisposable.DisposeCallCount, "Throwing disposable should be disposed exactly once");
-            Assert.AreEqual(1, normalDisposable.DisposeCallCount, "Normal disposable should still be disposed exactly once");
-        }
-
-        [Test]
         public void ControllerCompositeDisposable_MultipleDisposablesThrow_ThrowsAggregateExceptionWithAllInner()
         {
             // Arrange
@@ -193,11 +174,14 @@ namespace UnitTests.Controllers
             composite.Add(d1);
             composite.Add(d2);
             composite.Add(d3);
+            
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
 
             // Act
-            var aggregate = Assert.Throws<AggregateException>(
+            var aggregate = Assert.Throws<ControllerDisposeAggregateException>(
                 () => composite.Dispose(),
-                "Expected AggregateException when multiple disposables throw");
+                "Expected ControllerDisposeAggregateException when multiple disposables throw");
 
             // Assert
             Assert.IsNotNull(aggregate, "AggregateException should not be null");
@@ -223,11 +207,13 @@ namespace UnitTests.Controllers
             var collection = new[] { d1, d2, d3 };
 
             composite.Dispose();
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
 
             // Act
-            var aggregate = Assert.Throws<AggregateException>(
+            var aggregate = Assert.Throws<ControllerDisposeAggregateException>(
                 () => composite.AddRange(collection),
-                "Expected AggregateException when multiple disposables added after dispose throw");
+                "Expected ControllerDisposeAggregateException when multiple disposables added after dispose throw");
 
             // Assert
             Assert.IsNotNull(aggregate, "AggregateException should not be null");
@@ -240,6 +226,85 @@ namespace UnitTests.Controllers
             Assert.AreEqual(1, d1.DisposeCallCount, "First throwing disposable should be disposed exactly once");
             Assert.AreEqual(1, d2.DisposeCallCount, "Second throwing disposable should be disposed exactly once");
             Assert.AreEqual(1, d3.DisposeCallCount, "Non-throwing disposable should be disposed exactly once");
+        }
+
+        [Test]
+        public void ControllerCompositeDisposable_NestedComposite_InnerThrows_LogsLeafOnce_OuterDoesNotLogAggregate()
+        {
+            // Arrange
+            var outer = new ControllerCompositeDisposable();
+            var inner = new ControllerCompositeDisposable();
+
+            var innerThrowing = new TestDisposable("inner") { ThrowOnDispose = true };
+            var outerNonThrowing = new TestDisposable("outer-non-throwing");
+
+            inner.Add(innerThrowing);
+            outer.Add(inner);
+            outer.Add(outerNonThrowing);
+
+            // Expect exactly one leaf exception log. Aggregate must not be logged.
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+
+            // Act
+            var aggregate = Assert.Throws<ControllerDisposeAggregateException>(
+                () => outer.Dispose(),
+                "Expected ControllerDisposeAggregateException from outer composite");
+
+            // Assert
+            Assert.NotNull(aggregate);
+            Assert.AreEqual(1, aggregate.InnerExceptions.Count);
+            Assert.IsInstanceOf<TestControllersException>(aggregate.InnerExceptions[0]);
+
+            Assert.AreEqual(1, innerThrowing.DisposeCallCount);
+            Assert.AreEqual(1, outerNonThrowing.DisposeCallCount);
+
+            // Ensures no extra exception logs happened (e.g. aggregate logged by outer).
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        [Test]
+        public void ControllerCompositeDisposable_NestedComposite_MultipleLeafThrows_EachLeafLoggedOnce()
+        {
+            // Arrange
+            var outer = new ControllerCompositeDisposable();
+            var mid = new ControllerCompositeDisposable();
+            var inner = new ControllerCompositeDisposable();
+
+            var d1 = new TestDisposable("d1-inner") { ThrowOnDispose = true };
+            var d2 = new TestDisposable("d2-mid") { ThrowOnDispose = true };
+            var d3 = new TestDisposable("d3-outer") { ThrowOnDispose = true };
+            var d4 = new TestDisposable("d4-outer-non-throwing");
+
+            inner.Add(d1);
+            mid.Add(inner);
+            mid.Add(d2);
+
+            outer.Add(mid);
+            outer.Add(d3);
+            outer.Add(d4);
+
+            // Expect exactly 3 leaf exception logs total; aggregates must not be logged.
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+            LogAssert.Expect(LogType.Exception, new Regex("TestControllersException"));
+
+            // Act
+            var aggregate = Assert.Throws<ControllerDisposeAggregateException>(() => outer.Dispose());
+
+            // Assert
+            Assert.NotNull(aggregate);
+            Assert.AreEqual(3, aggregate.InnerExceptions.Count);
+            foreach (var ex in aggregate.InnerExceptions)
+            {
+                Assert.IsInstanceOf<TestControllersException>(ex);
+            }
+
+            Assert.AreEqual(1, d1.DisposeCallCount);
+            Assert.AreEqual(1, d2.DisposeCallCount);
+            Assert.AreEqual(1, d3.DisposeCallCount);
+            Assert.AreEqual(1, d4.DisposeCallCount);
+
+            LogAssert.NoUnexpectedReceived();
         }
 
         private sealed class TestDisposable : IDisposable
