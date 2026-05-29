@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Playtika.Controllers.Editor
 {
-    public class ControllerTreeView : TreeView
+    public class ControllerTreeView : TreeView<int>
     {
         private readonly IControllerDebugInfo _rootController;
         private readonly ControllersTreeViewModel _model;
@@ -17,7 +17,7 @@ namespace Playtika.Controllers.Editor
         private GUIStyle _labelStyle;
 
         internal ControllerTreeView(
-            TreeViewState state,
+            TreeViewState<int> state,
             MultiColumnHeader multiColumnHeader,
             IControllerDebugInfo rootController,
             ControllersTreeViewModel model)
@@ -40,10 +40,10 @@ namespace Playtika.Controllers.Editor
             _infoView.DrawInfos();
         }
 
-        protected override TreeViewItem BuildRoot()
+        protected override TreeViewItem<int> BuildRoot()
         {
-            var root = new TreeViewItem(0, -1, "Root");
-            root.children = new List<TreeViewItem>();
+            var root = new TreeViewItem<int>(0, -1, "Root");
+            root.children = new List<TreeViewItem<int>>();
 
             if (_rootController != null)
             {
@@ -66,13 +66,13 @@ namespace Playtika.Controllers.Editor
             return root;
         }
 
-        private List<TreeViewItem> InitializeTree(
+        private List<TreeViewItem<int>> InitializeTree(
             ControllersTreeViewItem root,
             IControllerDebugInfo controllerDebugInfo,
             int depth,
             ref int nextId)
         {
-            var childItems = new List<TreeViewItem>();
+            var childItems = new List<TreeViewItem<int>>();
             foreach (var childController in controllerDebugInfo)
             {
                 var item = new ControllersTreeViewItem(++nextId, depth, childController);

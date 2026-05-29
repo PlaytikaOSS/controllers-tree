@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -121,7 +120,7 @@ namespace Playtika.Controllers.Editor
 
         private void OnCreateNewTab(IControllerDebugInfo controller)
         {
-            var treeView = new ControllersHierarchyView(new ControllerTreeView(new TreeViewState(), _multiColumnHeader, controller, _model), _model);
+            var treeView = new ControllersHierarchyView(new ControllerTreeView(new TreeViewState<int>(), _multiColumnHeader, controller, _model), _model);
             _tabBarDrawer.AddData(new ControllerTabData(controller.GetType().Name, controller.ToString(), true, treeView.Draw, treeView.Reload));
         }
 
@@ -147,7 +146,7 @@ namespace Playtika.Controllers.Editor
             var rootController = RootController.Instance;
             if (rootController != null && _rootHierarchy == null)
             {
-                var treeView = new ControllerTreeView(new TreeViewState(), _multiColumnHeader, rootController, _model);
+                var treeView = new ControllerTreeView(new TreeViewState<int>(), _multiColumnHeader, rootController, _model);
                 _rootHierarchy = new ControllersHierarchyView(treeView, _model);
                 var tabData = new ControllerTabData("ROOT", rootController.ToString(), false, _rootHierarchy.Draw, _rootHierarchy.Reload);
                 _tabBarDrawer = new ControllersTabBarDrawer(_model, tabData);

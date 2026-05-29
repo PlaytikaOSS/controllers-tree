@@ -6,7 +6,7 @@ using UnityEditor.IMGUI.Controls;
 
 namespace Playtika.Controllers.Editor
 {
-    internal class ControllersTreeViewItem : TreeViewItem
+    internal class ControllersTreeViewItem : TreeViewItem<int>
     {
         private readonly WeakReference _controllerWeakReference;
 
