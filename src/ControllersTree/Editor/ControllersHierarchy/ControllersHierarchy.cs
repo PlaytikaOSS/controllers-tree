@@ -5,8 +5,13 @@ using System.Reflection;
 using System.Threading;
 using Playtika.Controllers;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+
+#if UNITY_6000_0_OR_NEWER
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
 
 namespace Playtika.Controllers.Editor
 {
@@ -24,20 +29,22 @@ namespace Playtika.Controllers.Editor
         public static void DisableUnityControllerProfilerDefine()
         {
             var buildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTarget);
+            var defines = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
             var definesList = defines.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             definesList.Remove(UnityControllerProfilerDefine);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, definesList.ToArray());
+            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, definesList.ToArray());
         }
 #else
         [MenuItem("Tools/Controllers/Enable CONTROLLERS_PROFILER define", priority = 103)]
         public static void EnableUnityControllerProfilerDefine()
         {
             var buildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+            var namedBuildTarget = NamedBuildTarget.FromBuildTargetGroup(buildTarget);
+            var defines = PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget);
             var definesList = defines.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList();
             definesList.Add(UnityControllerProfilerDefine);
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, definesList.ToArray());
+            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, definesList.ToArray());
         }
 #endif
 

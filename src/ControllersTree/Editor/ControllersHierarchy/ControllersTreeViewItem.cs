@@ -4,6 +4,10 @@ using System.Reflection;
 using Playtika.Controllers;
 using UnityEditor.IMGUI.Controls;
 
+#if UNITY_6000_0_OR_NEWER
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+#endif
+
 namespace Playtika.Controllers.Editor
 {
     internal class ControllersTreeViewItem : TreeViewItem
