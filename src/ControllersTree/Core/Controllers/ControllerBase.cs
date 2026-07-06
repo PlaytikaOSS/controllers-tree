@@ -148,10 +148,16 @@ namespace Playtika.Controllers
                 case ControllerState.Running:
                 case ControllerState.Stopped:
                 {
-                    _lifetimeTokenSource?.Cancel();
-                    _compositeDisposables.Dispose();
-                    ListPool<IController>.Release(_childControllers);
-                    _state = ControllerState.Disposed;
+                    try
+                    {
+                        _lifetimeTokenSource?.Cancel();
+                        _compositeDisposables.Dispose();
+                    }
+                    finally
+                    {
+                        ListPool<IController>.Release(_childControllers);
+                        _state = ControllerState.Disposed;
+                    }
                     break;
                 }
 
