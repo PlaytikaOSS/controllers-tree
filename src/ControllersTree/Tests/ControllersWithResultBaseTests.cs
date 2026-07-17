@@ -215,7 +215,7 @@ namespace UnitTests.Controllers
                         .LaunchAsync<ActionModelTestControllerWithResult_CompleteOnStart, TestControllerArgs, TestEmptyControllerResult>(
                             args, _controllerFactory, CancellationToken);
             }
-            catch (TestControllersException)
+            catch (AggregateException)
             {
                 exceptionThrown = true;
             }
@@ -224,7 +224,7 @@ namespace UnitTests.Controllers
             Assert.True(startTriggered, "OnStart is not triggered");
             Assert.False(flowTriggered, "OnFlowAsync has been triggered");
             Assert.True(stopTriggered, "OnStop is not triggered");
-            Assert.IsTrue(exceptionThrown, "TestControllersException expected");
+            Assert.IsTrue(exceptionThrown, "AggregateException expected");
         }
 
         [Test]

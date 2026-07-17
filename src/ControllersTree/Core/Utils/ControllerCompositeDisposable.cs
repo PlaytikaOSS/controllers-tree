@@ -71,8 +71,13 @@ namespace Playtika.Controllers
             }
         }
 
-        private static void DisposeMany(IEnumerable<IDisposable> disposables)
+        private static void DisposeMany(IReadOnlyCollection<IDisposable> disposables)
         {
+            if (disposables == null || disposables.Count == 0)
+            {
+                return;
+            }
+
             using var pooledObject = ListPool<Exception>.Get(out var exceptionList);
             foreach (var disposable in disposables)
             {
@@ -86,11 +91,9 @@ namespace Playtika.Controllers
                 }
             }
 
-            switch (exceptionList.Count)
+            if (exceptionList.Count > 0)
             {
-                case 0: return;
-                case 1: throw exceptionList[0];
-                default: throw new AggregateException(exceptionList.ToList());
+                throw new AggregateException(exceptionList.ToList());
             }
         }
     }

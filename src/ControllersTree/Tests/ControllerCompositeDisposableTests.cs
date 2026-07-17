@@ -160,7 +160,7 @@ namespace UnitTests.Controllers
         }
 
         [Test]
-        public void ControllerCompositeDisposable_OneDisposableThrows_ThrowsSingleExceptionAndDisposesOthers()
+        public void ControllerCompositeDisposable_OneDisposableThrows_WrapsInAggregateAndDisposesOthers()
         {
             // Arrange
             var composite = new ControllerCompositeDisposable();
@@ -171,12 +171,14 @@ namespace UnitTests.Controllers
             composite.Add(normalDisposable);
 
             // Act
-            var exception = Assert.Throws<TestControllersException>(
+            var aggregate = Assert.Throws<AggregateException>(
                 () => composite.Dispose(),
-                "Expected TestControllersException from throwing disposable");
+                "Expected AggregateException wrapping the throwing disposable");
 
             // Assert
-            Assert.IsNotNull(exception, "Exception should not be null");
+            Assert.IsNotNull(aggregate, "AggregateException should not be null");
+            Assert.AreEqual(1, aggregate.InnerExceptions.Count, "AggregateException should wrap the single throwing disposable");
+            Assert.IsInstanceOf<TestControllersException>(aggregate.InnerExceptions[0]);
             Assert.AreEqual(1, throwingDisposable.DisposeCallCount, "Throwing disposable should be disposed exactly once");
             Assert.AreEqual(1, normalDisposable.DisposeCallCount, "Normal disposable should still be disposed exactly once");
         }
