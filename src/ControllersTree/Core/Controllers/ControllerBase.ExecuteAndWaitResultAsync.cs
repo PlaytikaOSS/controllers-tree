@@ -198,7 +198,7 @@ namespace Playtika.Controllers
             }
             catch (Exception exception)
             {
-                controller.Stop(exception);
+                DisposeAfterFailure(controller, exception);
                 throw;
             }
             finally

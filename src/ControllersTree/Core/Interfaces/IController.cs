@@ -13,7 +13,6 @@ namespace Playtika.Controllers
         internal void Initialize(CancellationToken externalCancellationToken, CancellationToken parentCancellationToken);
         internal void Start();
         internal void Stop();
-        internal void Stop(Exception rootCauseException);
         internal void ScanTree(List<string> controllersTree, string prefix);
     }
 

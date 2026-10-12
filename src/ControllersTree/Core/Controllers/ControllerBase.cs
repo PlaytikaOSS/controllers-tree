@@ -104,10 +104,21 @@ namespace Playtika.Controllers
             {
                 ((IController)this).Stop();
             }
-            finally
+            catch (Exception stopException)
             {
-                DisposeInternal();
+                try
+                {
+                    DisposeInternal();
+                }
+                catch (Exception disposeException)
+                {
+                    throw FlatAggregate(stopException, disposeException);
+                }
+
+                throw;
             }
+
+            DisposeInternal();
         }
 
         void IController.Stop()
@@ -128,16 +139,33 @@ namespace Playtika.Controllers
             }
         }
 
-        void IController.Stop(Exception rootCauseException)
+        /// <summary>
+        /// Disposes a controller that has already failed. If the cleanup throws too,
+        /// both exceptions are thrown together, so the root cause is not lost.
+        /// </summary>
+        /// <param name="controller">The failed controller.</param>
+        /// <param name="rootCauseException">The exception that made the controller fail.</param>
+        private static void DisposeAfterFailure(IController controller, Exception rootCauseException)
         {
             try
             {
-                ((IController)this).Stop();
+                controller.Dispose();
             }
-            catch (Exception exception)
+            catch (Exception teardownException)
             {
-                throw new AggregateException(rootCauseException, exception);
+                throw FlatAggregate(rootCauseException, teardownException);
             }
+        }
+
+        /// <summary>
+        /// Combines two exceptions into one AggregateException without nested aggregates.
+        /// </summary>
+        /// <param name="first">The exception that happened first.</param>
+        /// <param name="second">The exception that happened after it.</param>
+        /// <returns>An AggregateException with the inner exceptions of both, in order.</returns>
+        private static AggregateException FlatAggregate(Exception first, Exception second)
+        {
+            return new AggregateException(new AggregateException(first, second).Flatten().InnerExceptions);
         }
 
         private void DisposeInternal()
