@@ -115,8 +115,8 @@ namespace Playtika.Controllers
             {
                 using (controller)
                 {
-                    controller.Stop(exception);
                     RemoveChild(controller);
+                    controller.Stop(exception);
                 }
 
                 throw;
