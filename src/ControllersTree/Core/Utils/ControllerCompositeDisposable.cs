@@ -93,7 +93,7 @@ namespace Playtika.Controllers
 
             if (exceptionList.Count > 0)
             {
-                throw new AggregateException(exceptionList.ToList());
+                throw new AggregateException(new AggregateException(exceptionList.ToList()).Flatten().InnerExceptions);
             }
         }
     }

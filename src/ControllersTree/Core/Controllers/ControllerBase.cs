@@ -168,6 +168,16 @@ namespace Playtika.Controllers
             return new AggregateException(new AggregateException(first, second).Flatten().InnerExceptions);
         }
 
+        /// <summary>
+        /// Combines exceptions into one AggregateException without nested aggregates.
+        /// </summary>
+        /// <param name="exceptions">The exceptions in the order they happened.</param>
+        /// <returns>An AggregateException with the inner exceptions of all of them, in order.</returns>
+        private static AggregateException FlatAggregate(IEnumerable<Exception> exceptions)
+        {
+            return new AggregateException(new AggregateException(exceptions).Flatten().InnerExceptions);
+        }
+
         private void DisposeInternal()
         {
             switch (_state)
@@ -244,7 +254,7 @@ namespace Playtika.Controllers
 
             if (exceptions.Any())
             {
-                throw new AggregateException(exceptions);
+                throw FlatAggregate(exceptions);
             }
         }
 

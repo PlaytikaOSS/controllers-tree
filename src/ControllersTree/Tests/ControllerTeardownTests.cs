@@ -101,6 +101,38 @@ namespace UnitTests.Controllers
         }
 
         /// <summary>
+        /// When a child disposable throws while the tree is disposed, the caller gets the exception without nested aggregates.
+        /// </summary>
+        [Test]
+        public void Dispose_ChildDisposableThrows_ExceptionIsFlat()
+        {
+            var root = Launch(factory => new ThrowingController(factory, throwOnStart: false, throwOnStop: false, throwOnDispose: true));
+            root.Execute<ThrowingController>();
+
+            var exception = Assert.Throws<AggregateException>(() => ((IDisposable)root).Dispose());
+
+            CollectionAssert.AreEqual(new[] { DisposeFailed }, Messages(exception));
+        }
+
+        /// <summary>
+        /// When a grandchild throws in OnStop while the tree is disposed, the caller gets the exception without nested aggregates.
+        /// </summary>
+        [Test]
+        public void Dispose_GrandchildOnStopThrows_ExceptionIsFlat()
+        {
+            var factory = new SubstituteControllerFactory();
+            factory.AddInstance(new ParentController(factory));
+            factory.AddInstance(new ThrowingController(factory, throwOnStart: false, throwOnStop: true, throwOnDispose: false));
+            var root = new TestRootController(factory);
+            root.LaunchTree(_cancellationTokenSource.Token);
+            root.Execute<ParentController>();
+
+            var exception = Assert.Throws<AggregateException>(() => ((IDisposable)root).Dispose());
+
+            CollectionAssert.AreEqual(new[] { OnStopFailed }, Messages(exception));
+        }
+
+        /// <summary>
         /// Launches a test root controller whose factory returns the controller created by <paramref name="createController"/>.
         /// </summary>
         /// <typeparam name="T">The type of the controller the factory returns.</typeparam>
@@ -171,6 +203,23 @@ namespace UnitTests.Controllers
                     throw new InvalidOperationException(OnStopFailed);
                 }
             }
+        }
+
+        private class ParentController : ControllerBase
+        {
+            /// <summary>
+            /// Creates a controller that runs a ThrowingController as its child.
+            /// </summary>
+            /// <param name="factory">The controller factory.</param>
+            public ParentController(IControllerFactory factory)
+                : base(factory)
+            {
+            }
+
+            /// <summary>
+            /// Executes the child controller.
+            /// </summary>
+            protected override void OnStart() => Execute<ThrowingController>();
         }
 
         private class ThrowingControllerWithResult : ControllerWithResultBase
